@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeCheck</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+    .card { max-width: 480px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 14px; }
+    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
+    button { background: #22c55e; color: #052e16; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>VibeCheck</h1>
+    <p>Envía un mensaje anónimo o consulta tu buzón.</p>
+    <input id="recipient" placeholder="Usuario destino (ej. ana)" />
+    <input id="deck" placeholder="Dinámica o mazo (ej. Verdad o reto)" />
+    <textarea id="question" placeholder="Escribe tu pregunta o confesión..."></textarea>
+    <textarea id="answer" placeholder="Tu respuesta o reto..."></textarea>
+    <button onclick="sendMessage()">Enviar VibeCheck</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://rrwftqlledwrbaduemko.supabase.co";
+    const SUPABASE_ANON_KEY = "TU_ANON_KEY_AQUI";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function sendMessage() {
+      const statusEl = document.getElementById("status");
+      const recipient_username = document.getElementById("recipient").value.trim();
+      const deck_name = document.getElementById("deck").value.trim() || "General";
+      const question = document.getElementById("question").value.trim();
+      const answer = document.getElementById("answer").value.trim() || "Sin respuesta";
+
+      if (!recipient_username || !question) {
+        statusEl.textContent = "Escribe al menos el usuario destino y tu pregunta.";
+        return;
+      }
+
+      const { error } = await supabaseClient.from("messages").insert([
+        { recipient_username, deck_name, question, answer }
+      ]);
+
+      statusEl.textContent = error ? "Error: " + error.message : "¡Enviado!";
+    }
+  </script>
+</body>
+</html>
